@@ -4,99 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Interactive Portfolio Intro</title>
-  <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background-color: #0f0f1e;
-      font-family: 'Arial', sans-serif;
-      color: #fff;
-    }
-    
-    #canvas-container {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      z-index: 1;
-    }
-    
-    #content {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 2;
-      text-align: center;
-    }
-    
-    h1 {
-      font-size: 4rem;
-      margin: 0;
-      opacity: 0;
-      transform: translateY(30px);
-      transition: all 1.5s ease-out;
-      text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-    }
-    
-    h2 {
-      font-size: 1.8rem;
-      margin-top: 20px;
-      opacity: 0;
-      transform: translateY(20px);
-      transition: all 1.5s ease-out;
-      transition-delay: 0.5s;
-    }
-    
-    .visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    
-    .btn {
-      margin-top: 40px;
-      padding: 12px 30px;
-      background: transparent;
-      border: 2px solid #fff;
-      color: #fff;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      border-radius: 30px;
-      opacity: 0;
-      transform: translateY(20px);
-      transition: all 1.5s ease-out;
-      transition-delay: 1s;
-    }
-    
-    .btn:hover {
-      background: #fff;
-      color: #0f0f1e;
-    }
-
-    .loading {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 24px;
-      z-index: 3;
-    }
-
-    @keyframes fadeOut {
-      from { opacity: 1; }
-      to { opacity: 0; }
-    }
-
-    .fade-out {
-      animation: fadeOut 1s forwards;
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div id="loading" class="loading">Loading...</div>
@@ -107,10 +15,15 @@
     <button id="enter-btn" class="btn">View My Work</button>
   </div>
 
-  <!-- Include Three.js library -->
+  <!-- Include Three.js library and OrbitControls -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   
-  <!-- Include your custom JavaScript file -->
-  <script src="intro.js"></script>
+  <!-- Include modular JavaScript files -->
+  <script src="js/particles.js"></script>
+  <script src="js/solar-system.js"></script>
+  <script src="js/navigation.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>
