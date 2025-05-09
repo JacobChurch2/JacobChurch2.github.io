@@ -35,6 +35,8 @@ body, html {
     transform: translateY(30px);
     transition: all 1.5s ease-out;
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    color: #ff14b5;
+    -webkit-text-stroke: 2px black;
   }
   
   h2 {
@@ -44,14 +46,15 @@ body, html {
     transform: translateY(20px);
     transition: all 1.5s ease-out;
     transition-delay: 0.5s;
+    color: #ff14b5;
+    -webkit-text-stroke: 1.5px black;
   }
   
   .btn {
     margin-top: 40px;
     padding: 12px 30px;
     background: transparent;
-    border: 2px solid #fff;
-    color: #fff;
+    border: 2px solid #ff14b5;
     font-size: 1rem;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -60,10 +63,13 @@ body, html {
     transform: translateY(20px);
     transition: all 1.5s ease-out;
     transition-delay: 1s;
+    -webkit-text-fill-color: #ff14b5;
+    -webkit-text-stroke: .25px black;
+    outline: 1px black;
   }
   
   .btn:hover {
-    background: #fff;
+    background: rgb(57, 57, 57);
     color: #0f0f1e;
   }
   
