@@ -7,6 +7,10 @@ function transitionToSolarSystem() {
       content.style.opacity = '0';
       content.style.transition = 'opacity 1s ease';
     }
+
+    //Enable Orbit controls
+    orbitControls.target.copy(TheSun.position);
+    orbitControls.enabled = true;
     
     // Zoom out camera
     const targetZ = 70;
@@ -25,7 +29,7 @@ function transitionToSolarSystem() {
         
         // Show solar system
         showSolarSystem();
-        if (particlesMesh) particlesMesh.visible = false;
+        //if (particlesMesh) particlesMesh.visible = false;
         
         // Update current view
         currentView = 'solar';
@@ -97,8 +101,9 @@ function transitionToSolarSystem() {
     const backButton = document.getElementById('back-button');
     if (backButton) backButton.style.display = 'none';
     
-    // Disable orbit controls
-    if (orbitControls) orbitControls.enabled = false;
+    // Enable orbit controls
+    if (orbitControls) orbitControls.enabled = true;
+    orbitControls.target.copy(TheSun.position);
     
     // Store current position for animation
     const startPosition = camera.position.clone();

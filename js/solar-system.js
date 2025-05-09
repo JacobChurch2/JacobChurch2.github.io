@@ -16,6 +16,7 @@ function createSolarSystem() {
   });
   const sun = new THREE.Mesh(sunGeometry, sunMaterial);
   scene.add(sun);
+  TheSun = sun;
   
   // Add a point light at the sun's position
   const sunLight = new THREE.PointLight(0xffffff, 1.5, 100);

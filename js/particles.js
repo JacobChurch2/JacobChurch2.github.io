@@ -9,7 +9,7 @@ function createParticleBackground() {
   
   for (let i = 0; i < particlesCount * 3; i++) {
     // Create a sphere of particles
-    posArray[i] = (Math.random() - 0.5) * 100;
+    posArray[i] = (Math.random() - 0.5) * 150;
   }
   
   particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));

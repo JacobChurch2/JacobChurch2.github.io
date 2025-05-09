@@ -3,6 +3,7 @@ let scene, camera, renderer;
 let orbitControls;
 let currentView = 'intro'; // 'intro', 'solar', 'planet'
 let selectedPlanet = null;
+let TheSun = null;
 
 // Wait for page to load, then initialize
 window.addEventListener('load', () => {
@@ -81,6 +82,8 @@ function setupOrbitControls() {
     orbitControls.enableDamping = true;
     orbitControls.dampingFactor = 0.05;
     orbitControls.rotateSpeed = 0.5;
+    orbitControls.minPolarAngle = -Math.PI;
+    orbitControls.maxPolarAngle = Math.PI;
     orbitControls.enabled = false; // Start disabled
   } else {
     console.warn("OrbitControls not available. Some functionality will be limited.");
@@ -102,6 +105,10 @@ function animate() {
     } else if (currentView === 'solar') {
       // Rotate planets around the sun
       animatePlanets();
+      //orbit controls
+      if (orbitControls && orbitControls.enabled) {
+        orbitControls.update();
+      }
     } else if (currentView === 'planet') {
       // Update controls when looking at a planet
       if (orbitControls && orbitControls.enabled) {
