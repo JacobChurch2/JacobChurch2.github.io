@@ -1,16 +1,17 @@
 // Navigation module for camera movement and view transitions
 
-function createSmoothCameraTransition(startPosition, endPosition, startLookAt, endLookAt, duration, onComplete) {
+function createSmoothCameraTransition(params) {
+  const {
+    startPosition, 
+    endPosition, 
+    startLookAt, 
+    endLookAt, 
+    duration = 2000, 
+    onComplete,
+    onUpdate
+  } = params;
+  
   const startTime = Date.now();
-  
-  // Create quaternions for rotation interpolation
-  const startQuaternion = new THREE.Quaternion().setFromRotationMatrix(
-    new THREE.Matrix4().lookAt(startPosition, startLookAt, new THREE.Vector3(0, 1, 0))
-  );
-  
-  const endQuaternion = new THREE.Quaternion().setFromRotationMatrix(
-    new THREE.Matrix4().lookAt(endPosition, endLookAt, new THREE.Vector3(0, 1, 0))
-  );
   
   // Tween function
   function easeInOutCubic(t) {
@@ -26,19 +27,14 @@ function createSmoothCameraTransition(startPosition, endPosition, startLookAt, e
     const currentPosition = new THREE.Vector3().lerpVectors(startPosition, endPosition, eased);
     camera.position.copy(currentPosition);
     
-    // Interpolate rotation using quaternion slerp
-    const currentQuaternion = new THREE.Quaternion();
-    THREE.Quaternion.slerp(startQuaternion, endQuaternion, currentQuaternion, eased);
+    // Interpolate look-at point
+    const currentLookAt = new THREE.Vector3().lerpVectors(startLookAt, endLookAt, eased);
     
-    // Create a matrix from the interpolated quaternion
-    const rotationMatrix = new THREE.Matrix4().makeRotationFromQuaternion(currentQuaternion);
+    // Look at the interpolated point
+    camera.lookAt(currentLookAt);
     
-    // Extract the look-at point from this rotation
-    const lookAtPoint = new THREE.Vector3(0, 0, -1)
-      .applyMatrix4(rotationMatrix)
-      .add(camera.position);
-    
-    camera.lookAt(lookAtPoint);
+    // Custom update callback
+    if (onUpdate) onUpdate(eased);
     
     // Update projection matrix
     camera.updateProjectionMatrix();
@@ -74,13 +70,12 @@ function transitionToSolarSystem() {
     const targetLookAt = new THREE.Vector3(0, 0, 0);
     
     // Transition camera
-    createSmoothCameraTransition(
+    createSmoothCameraTransition({
       startPosition, 
-      targetPosition, 
+      endPosition: targetPosition, 
       startLookAt, 
-      targetLookAt, 
-      2000, 
-      () => {
+      endLookAt: targetLookAt, 
+      onComplete: () => {
         //Enable Orbit controls
         orbitControls.target.copy(TheSun.position);
         orbitControls.enabled = true;
@@ -94,7 +89,7 @@ function transitionToSolarSystem() {
         // Hide content completely
         if (content) content.style.display = 'none';
       }
-    );
+    });
   }
   
   function zoomToPlanet(planet) {
@@ -118,17 +113,16 @@ function transitionToSolarSystem() {
     const targetOffset = new THREE.Vector3(0, 3, 10);
     const targetPosition = planet.position.clone().add(targetOffset);
     
-    // Calculate a smooth look-at point
+    // Use the planet's position as the constant look-at point
     const targetLookAt = planet.position.clone();
     
     // Transition camera
-    createSmoothCameraTransition(
+    createSmoothCameraTransition({
       startPosition, 
-      targetPosition, 
+      endPosition: targetPosition, 
       startLookAt, 
-      targetLookAt, 
-      2000, 
-      () => {
+      endLookAt: targetLookAt, 
+      onComplete: () => {
         // Enable orbit controls focused on the planet
         if (orbitControls) {
           orbitControls.target.copy(planet.position);
@@ -138,8 +132,15 @@ function transitionToSolarSystem() {
         
         // Show project content for this planet
         showPlanetContent(planetName);
+      },
+      onUpdate: (progress) => {
+        // Continuously update orbit controls target during transition
+        if (orbitControls) {
+          const interpolatedTarget = new THREE.Vector3().lerpVectors(startLookAt, targetLookAt, progress);
+          orbitControls.target.copy(interpolatedTarget);
+        }
       }
-    );
+    });
   }
   
   function zoomOutToSolarSystem() {
@@ -161,13 +162,12 @@ function transitionToSolarSystem() {
     const targetLookAt = new THREE.Vector3(0, 0, 0);
     
     // Transition camera
-    createSmoothCameraTransition(
+    createSmoothCameraTransition({
       startPosition, 
-      targetPosition, 
+      endPosition: targetPosition, 
       startLookAt, 
-      targetLookAt, 
-      2000, 
-      () => {
+      endLookAt: targetLookAt, 
+      onComplete: () => {
         // Enable orbit controls
         if (orbitControls) orbitControls.enabled = true;
         orbitControls.target.copy(TheSun.position);
@@ -175,8 +175,15 @@ function transitionToSolarSystem() {
         // Update view state
         currentView = 'solar';
         selectedPlanet = null;
+      },
+      onUpdate: (progress) => {
+        // Continuously update orbit controls target during transition
+        if (orbitControls) {
+          const interpolatedTarget = new THREE.Vector3().lerpVectors(startLookAt, targetLookAt, progress);
+          orbitControls.target.copy(interpolatedTarget);
+        }
       }
-    );
+    });
   }
   
   function zoomToSun() {
@@ -199,17 +206,16 @@ function transitionToSolarSystem() {
     const targetOffset = new THREE.Vector3(0, 3, 10);
     const targetPosition = TheSun.position.clone().add(targetOffset);
     
-    // Calculate a smooth look-at point
+    // Use the sun's position as the constant look-at point
     const targetLookAt = TheSun.position.clone();
     
     // Transition camera
-    createSmoothCameraTransition(
+    createSmoothCameraTransition({
       startPosition, 
-      targetPosition, 
+      endPosition: targetPosition, 
       startLookAt, 
-      targetLookAt, 
-      2000, 
-      () => {
+      endLookAt: targetLookAt, 
+      onComplete: () => {
         // Enable orbit controls focused on the sun
         if (orbitControls) {
           orbitControls.target.copy(TheSun.position);
@@ -219,6 +225,13 @@ function transitionToSolarSystem() {
         
         // Show project content for the sun (about me)
         showPlanetContent(sunName);
+      },
+      onUpdate: (progress) => {
+        // Continuously update orbit controls target during transition
+        if (orbitControls) {
+          const interpolatedTarget = new THREE.Vector3().lerpVectors(startLookAt, targetLookAt, progress);
+          orbitControls.target.copy(interpolatedTarget);
+        }
       }
-    );
+    });
   }
