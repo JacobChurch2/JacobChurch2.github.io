@@ -18,6 +18,11 @@ function createSolarSystem() {
   scene.add(sun);
   TheSun = sun;
   
+  // Add userData to sun for identification
+  sun.userData = {
+    name: 'about'
+  };
+  
   // Add a point light at the sun's position
   const sunLight = new THREE.PointLight(0xffffff, 1.5, 100);
   sunLight.position.set(0, 0, 0);
@@ -108,25 +113,46 @@ function animatePlanets() {
 function getPlanetContent(planetName) {
   // Planet content definitions
   const planetContents = {
+    'about': {
+      title: 'Jacob Church',
+      description: 'Software Developer and Game Designer with a passion for creating immersive interactive experiences. I specialize in game development, web technologies, and innovative digital solutions.',
+      contacts: [
+        { 
+          type: 'LinkedIn', 
+          value: 'LinkedIn', 
+          link: 'https://www.linkedin.com/in/jacob-church-872887252'
+        },
+        { 
+          type: 'GitHub', 
+          value: 'GitHub', 
+          link: 'https://github.com/JacobChurch2'
+        },
+        { 
+          type: 'Email', 
+          value: 'jacob.work.church@gmail.com', 
+          link: 'mailto:jacob.work.church@gmail.com'
+        }
+      ]
+    },
     'project1': {
-      title: 'Web Development',
-      description: 'Frontend and backend web development projects showcasing modern frameworks and techniques.'
+      title: 'Solar System',
+      description: 'This. I needed to create a portolio and I figured why not try to make it more intesting then just a list of projects on a page.'
     },
     'project2': {
-      title: 'Mobile Applications',
-      description: 'Native and cross-platform mobile applications for iOS and Android.'
+      title: 'Innerworks',
+      description: 'Story based platformer that was made for my Senior Capstone Project.'
     },
     'project3': {
-      title: 'UI/UX Design',
-      description: 'User interface and experience design projects, including wireframes, prototypes, and final designs.'
+      title: 'Warmonger45',
+      description: 'First person battleground shooter that was made by a team of 5 in 10 weeks.'
     },
     'project4': {
-      title: 'Data Visualization',
-      description: 'Interactive data visualization projects using D3.js, Three.js, and other libraries.'
+      title: 'DragonFiAR',
+      description: 'Technically that is the name of the company because the game has not been named yet, but we are working on a VR game that features a 2D arcade machine that you must interact with in many different ways.'
     },
     'project5': {
-      title: 'Machine Learning',
-      description: 'Machine learning and AI projects, including natural language processing and computer vision.'
+      title: 'Space Golf',
+      description: 'A very simple, but very fun mobile golf game that puts your skills to the test, espically with the fact that you have been thrown into space.'
     }
   };
   
