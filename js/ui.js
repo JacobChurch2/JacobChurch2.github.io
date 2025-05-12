@@ -175,6 +175,11 @@ function setupUI() {
     // Get content for this planet
     const content = getPlanetContent(planetName);
     
+    // Construct project explore button (optional)
+    const projectButton = content.projectLink 
+      ? `<button id="explore-project" onclick="window.open('${content.projectLink}', '_blank')">Explore Project</button>` 
+      : '';
+    
     // Construct contact links HTML with buttons
     const contactsHTML = content.contacts ? content.contacts.map(contact => {
       return `
@@ -189,10 +194,15 @@ function setupUI() {
     planetContent.innerHTML = `
       <h2>${content.title}</h2>
       <p>${content.description}</p>
-      <div class="contacts">
-        <h3>Contact Information</h3>
-        ${contactsHTML}
-      </div>
+      
+      ${projectButton}
+      
+      ${content.contacts ? `
+        <div class="contacts">
+          <h3>Contact Information</h3>
+          ${contactsHTML}
+        </div>
+      ` : ''}
     `;
     
     // Show with animation

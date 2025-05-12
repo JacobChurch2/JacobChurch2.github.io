@@ -135,24 +135,29 @@ function getPlanetContent(planetName) {
       ]
     },
     'project1': {
-      title: 'Solar System',
-      description: 'This. I needed to create a portolio and I figured why not try to make it more intesting then just a list of projects on a page.'
+      title: 'Solar System Portfolio',
+      description: 'An interactive 3D portfolio website using Three.js, showcasing my projects through a unique solar system metaphor. Demonstrates creative web development and interactive design skills.',
+      projectLink: 'https://jacobchurch2.github.io'
     },
     'project2': {
       title: 'Innerworks',
-      description: 'Story based platformer that was made for my Senior Capstone Project.'
+      description: 'A story-driven platformer developed as a Senior Capstone Project. Explores innovative gameplay mechanics and narrative design.',
+      projectLink: 'https://jacobchurch.itch.io/innerworks-ch1'
     },
     'project3': {
       title: 'Warmonger45',
-      description: 'First person battleground shooter that was made by a team of 5 in 10 weeks.'
+      description: 'A fast-paced first-person battleground shooter developed by a team of 5 in 10 weeks. Demonstrates collaborative game development skills.',
+      projectLink: 'https://store.steampowered.com/app/3512780/WARMONGER45/'
     },
     'project4': {
       title: 'DragonFiAR',
-      description: 'Technically that is the name of the company because the game has not been named yet, but we are working on a VR game that features a 2D arcade machine that you must interact with in many different ways.'
+      description: 'An innovative VR game concept featuring interaction with a 2D arcade machine. Showcases creative game design and cross-platform development.',
+      projectLink: 'https://www.dragonfiar.com'
     },
     'project5': {
       title: 'Space Golf',
-      description: 'A very simple, but very fun mobile golf game that puts your skills to the test, espically with the fact that you have been thrown into space.'
+      description: 'A unique mobile golf game that challenges players\' skills in a space-themed environment. Demonstrates mobile game development expertise.',
+      projectLink: 'https://github.com/The-Innominate/Space-Golf'
     }
   };
   
