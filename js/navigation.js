@@ -103,27 +103,40 @@ function transitionToSolarSystem() {
     const backButton = document.getElementById('back-button');
     if (backButton) backButton.style.display = 'block';
     
-    // Store the current camera position for the zoom animation
+    // Store the current camera position and target
     const startPosition = camera.position.clone();
-    const startLookAt = new THREE.Vector3();
-    camera.getWorldDirection(startLookAt);
-    startLookAt.multiplyScalar(50).add(camera.position);
+    const startLookAt = orbitControls.target.clone();
     
-    // Calculate target position (offset from the planet)
-    const targetOffset = new THREE.Vector3(0, 3, 10);
+    // Calculate target position based on planet's size and position
+    const planetRadius = planet.geometry.boundingSphere ? planet.geometry.boundingSphere.radius : 1;
+    const distanceFromPlanet = planetRadius * 5; // Closer view of the planet
+    
+    // Calculate a position above and slightly behind the planet relative to the sun
+    const planetToSun = planet.position.clone().negate().normalize();
+    const upVector = new THREE.Vector3(0, 1, 0);
+    const rightVector = new THREE.Vector3().crossVectors(planetToSun, upVector).normalize();
+    
+    // Combine vectors to position camera at an angle
+    const targetOffset = new THREE.Vector3()
+      .addScaledVector(planetToSun, -distanceFromPlanet * 0.5) // Behind
+      .addScaledVector(upVector, distanceFromPlanet * 0.3) // Above
+      .addScaledVector(rightVector, distanceFromPlanet * 0.2); // Slight angle
+    
     const targetPosition = planet.position.clone().add(targetOffset);
-    
-    // Use the planet's position as the constant look-at point
     const targetLookAt = planet.position.clone();
+    
+    // Disable orbit controls during transition
+    if (orbitControls) orbitControls.enabled = false;
     
     // Transition camera
     createSmoothCameraTransition({
-      startPosition, 
-      endPosition: targetPosition, 
-      startLookAt, 
-      endLookAt: targetLookAt, 
+      startPosition,
+      endPosition: targetPosition,
+      startLookAt,
+      endLookAt: targetLookAt,
+      duration: 2000,
       onComplete: () => {
-        // Enable orbit controls focused on the planet
+        // Re-enable and update orbit controls
         if (orbitControls) {
           orbitControls.target.copy(planet.position);
           orbitControls.enabled = true;
@@ -138,6 +151,7 @@ function transitionToSolarSystem() {
         if (orbitControls) {
           const interpolatedTarget = new THREE.Vector3().lerpVectors(startLookAt, targetLookAt, progress);
           orbitControls.target.copy(interpolatedTarget);
+          orbitControls.update();
         }
       }
     });

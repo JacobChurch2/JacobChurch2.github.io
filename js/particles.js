@@ -1,5 +1,5 @@
 // Particles module for background effect
-let particlesMesh;
+window.particlesMesh = null;
 
 function createParticleBackground() {
   const particlesGeometry = new THREE.BufferGeometry();
@@ -23,13 +23,13 @@ function createParticleBackground() {
   });
   
   // Mesh
-  particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
-  scene.add(particlesMesh);
+  window.particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+  window.scene.add(window.particlesMesh);
 }
 
 function animateParticles() {
-  if (particlesMesh) {
-    particlesMesh.rotation.x += 0.0005;
-    particlesMesh.rotation.y += 0.0005;
+  if (window.particlesMesh) {
+    window.particlesMesh.rotation.x += 0.0005;
+    window.particlesMesh.rotation.y += 0.0005;
   }
 }

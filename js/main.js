@@ -1,9 +1,12 @@
 // Global variables
-let scene, camera, renderer;
-let orbitControls;
-let currentView = 'intro'; // 'intro', 'solar', 'planet'
-let selectedPlanet = null;
-let TheSun = null;
+window.scene = null;
+window.camera = null;
+window.renderer = null;
+window.orbitControls = null;
+window.currentView = 'intro'; // 'intro', 'solar', 'planet'
+window.selectedPlanet = null;
+window.TheSun = null;
+window.planets = [];
 
 // Wait for page to load, then initialize
 window.addEventListener('load', () => {
@@ -39,14 +42,14 @@ function initializeScene() {
     const container = document.getElementById('canvas-container');
     
     // Create scene, camera, and renderer
-    scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 50;
+    window.scene = new THREE.Scene();
+    window.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    window.camera.position.z = 50;
     
-    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setClearColor(0x000000, 0);
-    container.appendChild(renderer.domElement);
+    window.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    window.renderer.setSize(window.innerWidth, window.innerHeight);
+    window.renderer.setClearColor(0x000000, 0);
+    container.appendChild(window.renderer.domElement);
     
     // Setup OrbitControls
     setupOrbitControls();
@@ -54,11 +57,22 @@ function initializeScene() {
     // Create particle background
     createParticleBackground();
     
+    // Initialize empty arrays/objects
+    window.planets = [];
+    window.TheSun = null;
+    
     // Create solar system (initially hidden)
     createSolarSystem();
+    
+    // Verify solar system was created
+    if (!window.TheSun || !window.planets.length) {
+      throw new Error('Solar system failed to initialize properly');
+    }
+    console.log('Solar system initialized with', window.planets.length, 'planets and sun:', window.TheSun ? 'present' : 'missing');
+    
     hideSolarSystem();
     
-    // Setup UI elements and interactions
+    // Setup UI elements and interactions AFTER solar system is created
     setupUI();
     
     // Animation loop
@@ -78,16 +92,16 @@ function initializeScene() {
 
 function setupOrbitControls() {
   if (typeof THREE.OrbitControls === 'function') {
-    orbitControls = new THREE.OrbitControls(camera, renderer.domElement);
-    orbitControls.enableDamping = true;
-    orbitControls.dampingFactor = 0.05;
-    orbitControls.rotateSpeed = 0.5;
-    orbitControls.minPolarAngle = -Math.PI;
-    orbitControls.maxPolarAngle = Math.PI;
-    orbitControls.enabled = false; // Start disabled
+    window.orbitControls = new THREE.OrbitControls(window.camera, window.renderer.domElement);
+    window.orbitControls.enableDamping = true;
+    window.orbitControls.dampingFactor = 0.05;
+    window.orbitControls.rotateSpeed = 0.5;
+    window.orbitControls.minPolarAngle = -Math.PI;
+    window.orbitControls.maxPolarAngle = Math.PI;
+    window.orbitControls.enabled = false; // Start disabled
   } else {
     console.warn("OrbitControls not available. Some functionality will be limited.");
-    orbitControls = {
+    window.orbitControls = {
       enabled: false,
       update: function() {},
       target: new THREE.Vector3()
@@ -99,24 +113,24 @@ function animate() {
   requestAnimationFrame(animate);
   
   try {
-    if (currentView === 'intro') {
+    if (window.currentView === 'intro') {
       // Animate particles
       animateParticles();
-    } else if (currentView === 'solar') {
+    } else if (window.currentView === 'solar') {
       // Rotate planets around the sun
       animatePlanets();
       //orbit controls
-      if (orbitControls && orbitControls.enabled) {
-        orbitControls.update();
+      if (window.orbitControls && window.orbitControls.enabled) {
+        window.orbitControls.update();
       }
-    } else if (currentView === 'planet') {
+    } else if (window.currentView === 'planet') {
       // Update controls when looking at a planet
-      if (orbitControls && orbitControls.enabled) {
-        orbitControls.update();
+      if (window.orbitControls && window.orbitControls.enabled) {
+        window.orbitControls.update();
       }
     }
     
-    renderer.render(scene, camera);
+    window.renderer.render(window.scene, window.camera);
   } catch (error) {
     console.error('Error in animation loop:', error);
   }
@@ -149,7 +163,7 @@ function animateContentAppearance() {
 
 // Handle window resize
 window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  window.camera.aspect = window.innerWidth / window.innerHeight;
+  window.camera.updateProjectionMatrix();
+  window.renderer.setSize(window.innerWidth, window.innerHeight);
 });

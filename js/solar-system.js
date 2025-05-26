@@ -1,6 +1,5 @@
 // Solar system module
-let planets = [];
-let planetTextures = {
+const planetTextures = {
   'project1': { color: 0x3366ff, size: 2.5 },  // Blue
   'project2': { color: 0xff6633, size: 2.0 },  // Orange
   'project3': { color: 0x66cc99, size: 1.8 },  // Teal
@@ -9,28 +8,38 @@ let planetTextures = {
 };
 
 function createSolarSystem() {
+  console.log('Creating solar system...');
+  
   // Create a sun (center of the solar system)
   const sunGeometry = new THREE.SphereGeometry(4, 32, 32);
-  const sunMaterial = new THREE.MeshBasicMaterial({ 
-    color: 0xffdd00
+  const sunMaterial = new THREE.MeshPhongMaterial({ 
+    color: 0xffdd00,
+    emissive: 0x000000,
+    emissiveIntensity: 1,
+    shininess: 30
   });
   const sun = new THREE.Mesh(sunGeometry, sunMaterial);
-  scene.add(sun);
-  TheSun = sun;
+  window.scene.add(sun);
+  window.TheSun = sun;
   
   // Add userData to sun for identification
   sun.userData = {
     name: 'about'
   };
   
+  console.log('Sun created with material:', sun.material);
+  
   // Add a point light at the sun's position
   const sunLight = new THREE.PointLight(0xffffff, 1.5, 100);
   sunLight.position.set(0, 0, 0);
-  scene.add(sunLight);
+  window.scene.add(sunLight);
 
   // Add ambient light
   const ambientLight = new THREE.AmbientLight(0x333333);
-  scene.add(ambientLight);
+  window.scene.add(ambientLight);
+  
+  // Clear existing planets array
+  window.planets = [];
   
   // Create planets
   let orbitRadius = 12;
@@ -43,6 +52,8 @@ function createSolarSystem() {
     const planetGeometry = new THREE.SphereGeometry(planetConfig.size, 32, 32);
     const planetMaterial = new THREE.MeshPhongMaterial({ 
       color: planetConfig.color,
+      emissive: 0x000000,
+      emissiveIntensity: 1,
       shininess: 30
     });
     
@@ -72,18 +83,22 @@ function createSolarSystem() {
       name: planetId
     };
     
-    scene.add(planet);
-    scene.add(orbit);
-    planets.push(planet);
+    window.scene.add(planet);
+    window.scene.add(orbit);
+    window.planets.push(planet);
+    
+    console.log(`Planet ${planetId} created with material:`, planet.material);
     
     orbitRadius += orbitStep;
   });
+
+  console.log('Solar system created with', window.planets.length, 'planets');
 }
 
 function hideSolarSystem() {
   // Hide planets and sun
-  scene.children.forEach(child => {
-    if (child !== particlesMesh) {
+  window.scene.children.forEach(child => {
+    if (child !== window.particlesMesh) {
       child.visible = false;
     }
   });
@@ -91,13 +106,17 @@ function hideSolarSystem() {
 
 function showSolarSystem() {
   // Show planets and sun
-  scene.children.forEach(child => {
+  window.scene.children.forEach(child => {
     child.visible = true;
   });
 }
 
 function animatePlanets() {
-  planets.forEach(planet => {
+  if (!window.planets) return;
+  
+  window.planets.forEach(planet => {
+    if (!planet || !planet.userData) return;
+    
     // Update orbit angle
     planet.userData.orbitAngle += planet.userData.orbitSpeed;
     
