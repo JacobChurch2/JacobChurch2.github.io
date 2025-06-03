@@ -7,18 +7,114 @@ const planetTextures = {
   'project5': { color: 0xffcc33, size: 2.2 }   // Yellow
 };
 
+// Function to create a photo collage texture
+function createPhotoCollageTexture() {
+  console.log('Starting to create photo collage texture...');
+  
+  // Create a canvas for the collage
+  const canvas = document.createElement('canvas');
+  canvas.width = 2048;  // High resolution for better quality
+  canvas.height = 2048;
+  const ctx = canvas.getContext('2d');
+
+  // Create a texture loader
+  const textureLoader = new THREE.TextureLoader();
+
+  // Function to load and place an image
+  function loadAndPlaceImage(imagePath, x, y, width, height) {
+    console.log(`Attempting to load image: ${imagePath}`);
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = "Anonymous";
+      img.onload = () => {
+        console.log(`Successfully loaded image: ${imagePath}`);
+        // Draw the image with rounded corners
+        ctx.save();
+        ctx.beginPath();
+        const radius = 20;
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + width - radius, y);
+        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        ctx.lineTo(x + width, y + height - radius);
+        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        ctx.lineTo(x + radius, y + height);
+        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+        ctx.clip();
+        
+        // Draw the image
+        ctx.drawImage(img, x, y, width, height);
+        ctx.restore();
+        resolve();
+      };
+      img.onerror = (error) => {
+        console.error(`Failed to load image: ${imagePath}`, error);
+        reject(error);
+      };
+      img.src = imagePath;
+    });
+  }
+
+  // Load all images from the photos folder
+  const photoPromises = [];
+  const gridSize = 3; // 3x3 grid
+  const cellWidth = canvas.width / gridSize;
+  const cellHeight = canvas.height / gridSize;
+
+  // Load images from the photos folder
+  for (let i = 0; i < gridSize * gridSize; i++) {
+    const row = Math.floor(i / gridSize);
+    const col = i % gridSize;
+    const x = col * cellWidth;
+    const y = row * cellHeight;
+    
+    // Add some padding between photos
+    const padding = 10;
+    const photoX = x + padding;
+    const photoY = y + padding;
+    const photoWidth = cellWidth - (padding * 2);
+    const photoHeight = cellHeight - (padding * 2);
+
+    // Load image from photos folder
+    const imagePath = `photos/Photo${i + 1}.jpg`;
+    photoPromises.push(loadAndPlaceImage(imagePath, photoX, photoY, photoWidth, photoHeight));
+  }
+
+  // Create and return the texture
+  return Promise.all(photoPromises).then(() => {
+    console.log('All photos loaded successfully, creating texture...');
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.encoding = THREE.sRGBEncoding;
+    texture.flipY = true;  // Changed to true to fix upside-down photos
+    texture.needsUpdate = true;
+    console.log('Texture created with dimensions:', canvas.width, 'x', canvas.height);
+    return texture;
+  }).catch(error => {
+    console.error('Error creating photo collage:', error);
+    throw error;
+  });
+}
+
 function createSolarSystem() {
   console.log('Creating solar system...');
   
   // Create a sun (center of the solar system)
   const sunGeometry = new THREE.SphereGeometry(4, 32, 32);
-  const sunMaterial = new THREE.MeshPhongMaterial({ 
+  
+  // Create a temporary material while loading the texture
+  const tempMaterial = new THREE.MeshPhongMaterial({ 
     color: 0xffdd00,
     emissive: 0xffdd00,
     emissiveIntensity: 2,
     shininess: 30
   });
-  const sun = new THREE.Mesh(sunGeometry, sunMaterial);
+  
+  // Create the sun with temporary material
+  const sun = new THREE.Mesh(sunGeometry, tempMaterial);
   window.scene.add(sun);
   window.TheSun = sun;
   
@@ -28,16 +124,43 @@ function createSolarSystem() {
   };
   
   // Create a glowing aura around the sun
-  const auraGeometry = new THREE.SphereGeometry(4.5, 32, 32); // Slightly larger than the sun
+  const auraGeometry = new THREE.SphereGeometry(4.5, 32, 32);
   const auraMaterial = new THREE.MeshBasicMaterial({
-    color: 0xffdd00, // Same color as the sun
+    color: 0xffdd00,
     transparent: true,
-    opacity: 0.6, // Increased opacity for brighter aura
-    side: THREE.BackSide // Render the back side to make the aura appear from the center
+    opacity: 0.6,
+    side: THREE.BackSide
   });
   const aura = new THREE.Mesh(auraGeometry, auraMaterial);
-  sun.add(aura); // Add aura as a child of the sun so it moves with it
+  sun.add(aura);
 
+  // Create the photo collage texture and apply it to the sun
+  createPhotoCollageTexture().then(texture => {
+    console.log('Applying texture to sun material...');
+    // Create a new material with the texture and yellow tint
+    const newMaterial = new THREE.MeshPhongMaterial({ 
+      map: texture,
+      color: 0xffdd00,  // Add yellow tint
+      emissive: 0xffdd00,  // Yellow glow
+      emissiveIntensity: 0.3,
+      shininess: 30,
+      transparent: true,
+      opacity: 0.9  // Slightly transparent to blend with the yellow
+    });
+    
+    // Replace the sun's material
+    sun.material = newMaterial;
+    
+    // Update the aura color to match the yellow theme
+    aura.material.color.set(0xffdd00);
+    aura.material.opacity = 0.4;
+    
+    console.log('Texture applied successfully');
+  }).catch(error => {
+    console.error('Error loading photo collage texture:', error);
+    // Keep the default yellow material if texture loading fails
+  });
+  
   // Create a simple turtle model
   const createTurtle = (size) => {
     const turtleGroup = new THREE.Group();
@@ -1343,7 +1466,7 @@ function getPlanetContent(planetName) {
   const planetContents = {
     'about': {
       title: 'Jacob Church',
-      description: 'Software Developer and Game Designer with a passion for creating immersive interactive experiences. I specialize in game development, web technologies, and innovative digital solutions.',
+      description: 'Software Developer and Game Designer with a passion for creating immersive interactive experiences. I specialize in game development, software development, and innovative digital solutions.',
       contacts: [
         { 
           type: 'LinkedIn', 
@@ -1354,6 +1477,16 @@ function getPlanetContent(planetName) {
           type: 'GitHub', 
           value: 'GitHub', 
           link: 'https://github.com/JacobChurch2'
+        },
+        { 
+          type: 'itch.io', 
+          value: 'itch.io', 
+          link: 'https://jacobchurch.itch.io'
+        },
+        { 
+          type: 'Resume', 
+          value: 'Resume', 
+          link: 'resume.pdf'
         },
         { 
           type: 'Email', 

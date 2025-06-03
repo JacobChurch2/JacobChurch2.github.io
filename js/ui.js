@@ -120,9 +120,9 @@ function setupPlanetInteractions() {
       try {
         // Apply hover effects
         if (hoveredObject === window.TheSun) {
-          // Enhance sun's glow on hover
-          hoveredObject.material.emissiveIntensity = 4; // Increase intensity further
-          // Could also slightly change the color: hoveredObject.material.emissive.setHex(0xffff00);
+          // Enhance sun's glow on hover while maintaining yellow tint
+          hoveredObject.material.emissiveIntensity = 0.6; // Increased but not too bright
+          hoveredObject.material.color.setHex(0xffdd00); // Maintain yellow tint
         } else {
           // Enhanced glow effect with smoother transition for other objects
           hoveredObject.material.emissive.setHex(0x444444);
@@ -360,53 +360,187 @@ function createInteractiveSpots(planet) {
   // Create a group to hold all interactive spots
   const spotsGroup = new THREE.Group();
   
-  // Define spots with their positions, content, and orbital parameters
-  const spots = [
-    {
-      position: new THREE.Vector3(2.5, 1.2, 0),
-      content: {
-        title: "Technical Details",
-        description: "Technologies and frameworks used in this project"
+  // Define planet-specific content
+  const planetContents = {
+    'project2': [ // Innerworks
+      {
+        position: new THREE.Vector3(2.5, 1.2, 0),
+        content: {
+          title: "Technical Details",
+          description: "Used Piskel to create assets, Itch to gather assets, Visual Studio to edit scripts, GitHub as version control, and Unity 6 as the game engine."
+        },
+        orbit: {
+          radius: 2.5,
+          speed: 0.2,
+          tilt: Math.PI / 6,
+          phase: 0
+        }
       },
-      orbit: {
-        radius: 2.5,
-        speed: 0.2,
-        tilt: Math.PI / 6,  // 30 degrees
-        phase: 0
-      }
-    },
-    {
-      position: new THREE.Vector3(-2.0, 0.8, 1.2),
-      content: {
-        title: "My Role",
-        description: "My contributions and responsibilities"
+      {
+        position: new THREE.Vector3(-2.0, 0.8, 1.2),
+        content: {
+          title: "My Role",
+          description: "Sole Developer and Designer. Created the core gameplay mechanics, designed levels, and implemented the narrative system.\n (Created Everything)"
+        },
+        orbit: {
+          radius: 2.2,
+          speed: 0.15,
+          tilt: -Math.PI / 4,
+          phase: Math.PI / 2
+        }
       },
-      orbit: {
-        radius: 2.2,
-        speed: 0.15,
-        tilt: -Math.PI / 4,  // -45 degrees
-        phase: Math.PI / 2
+      {
+        position: new THREE.Vector3(0, -2.0, 1.5),
+        content: {
+          title: "Key Features",
+          description: "• Story-driven platformer with unique mechanics\n• Custom-made pixel art assets\n• Dynamic narrative system\n• Challenging level design\n• Challenging Boss"
+        },
+        orbit: {
+          radius: 2.3,
+          speed: 0.18,
+          tilt: Math.PI / 3,
+          phase: Math.PI
+        }
       }
-    },
-    {
-      position: new THREE.Vector3(0, -2.0, 1.5),
-      content: {
-        title: "Key Features",
-        description: "Notable features and achievements"
+    ],
+    'project3': [ // Warmonger45
+      {
+        position: new THREE.Vector3(2.5, 1.2, 0),
+        content: {
+          title: "Technical Details",
+          description: "Built in Unreal Engine 5, featuring custom made assets, advanced combat system, advanced AIs, and optimized networking for smooth multiplayer gameplay."
+        },
+        orbit: {
+          radius: 2.5,
+          speed: 0.2,
+          tilt: Math.PI / 6,
+          phase: 0
+        }
       },
-      orbit: {
-        radius: 2.3,
-        speed: 0.18,
-        tilt: Math.PI / 3,  // 60 degrees
-        phase: Math.PI
+      {
+        position: new THREE.Vector3(-2.0, 0.8, 1.2),
+        content: {
+          title: "My Role",
+          description: "Lead Developer for the AI. Implemented the AI system, including pathfinding, decision-making, and combat strategies."
+        },
+        orbit: {
+          radius: 2.2,
+          speed: 0.15,
+          tilt: -Math.PI / 4,
+          phase: Math.PI / 2
+        }
+      },
+      {
+        position: new THREE.Vector3(0, -2.0, 1.5),
+        content: {
+          title: "Key Features",
+          description: "• Fast-paced first-person combat\n• Advanced AI opponents\n• Unique weapon mechanics\n• Dynamic environments\n• Multiplayer support"
+        },
+        orbit: {
+          radius: 2.3,
+          speed: 0.18,
+          tilt: Math.PI / 3,
+          phase: Math.PI
+        }
       }
-    }
-  ];
+    ],
+    'project4': [ // DragonFiAR
+      {
+        position: new THREE.Vector3(2.5, 1.2, 0),
+        content: {
+          title: "Technical Details",
+          description: "Developed using Unity XR, featuring custom VR interactions, 2D-3D integration, and a mysterious story."
+        },
+        orbit: {
+          radius: 2.5,
+          speed: 0.2,
+          tilt: Math.PI / 6,
+          phase: 0
+        }
+      },
+      {
+        position: new THREE.Vector3(-2.0, 0.8, 1.2),
+        content: {
+          title: "My Role",
+          description: "I was part of the second team that built upon what the first team made. Added and expanded on a different asspects of the game, designed the 2D arcade levels and designed the integration between 2D and 3D elements."
+        },
+        orbit: {
+          radius: 2.2,
+          speed: 0.15,
+          tilt: -Math.PI / 4,
+          phase: Math.PI / 2
+        }
+      },
+      {
+        position: new THREE.Vector3(0, -2.0, 1.5),
+        content: {
+          title: "Key Features",
+          description: "• Innovative VR gameplay\n• 2D-3D integration\n• Interactive arcade machine\n• Immersive environments\n Mysterious story"
+        },
+        orbit: {
+          radius: 2.3,
+          speed: 0.18,
+          tilt: Math.PI / 3,
+          phase: Math.PI
+        }
+      }
+    ],
+    'project5': [ // Space Golf
+      {
+        position: new THREE.Vector3(2.5, 1.2, 0),
+        content: {
+          title: "Technical Details",
+          description: "Built with Unity for mobile platforms, featuring custom physics, touch controls, and optimized performance for various devices."
+        },
+        orbit: {
+          radius: 2.5,
+          speed: 0.2,
+          tilt: Math.PI / 6,
+          phase: 0
+        }
+      },
+      {
+        position: new THREE.Vector3(-2.0, 0.8, 1.2),
+        content: {
+          title: "My Role",
+          description: "One of the lead developers. Implemented player physics, leaderboard system, and mobile optimization."
+        },
+        orbit: {
+          radius: 2.2,
+          speed: 0.15,
+          tilt: -Math.PI / 4,
+          phase: Math.PI / 2
+        }
+      },
+      {
+        position: new THREE.Vector3(0, -2.0, 1.5),
+        content: {
+          title: "Key Features",
+          description: "• Unique space-themed golf mechanics\n• Custom physics system\n• Touch-based controls\n• Progressive difficulty\n• Mobile-optimized performance"
+        },
+        orbit: {
+          radius: 2.3,
+          speed: 0.18,
+          tilt: Math.PI / 3,
+          phase: Math.PI
+        }
+      }
+    ]
+  };
+
+  // Get the spots for this specific planet
+  const spots = planetContents[planet.userData.name] || [];
   
   // Determine spot color based on the planet
   let spotColor = 0xff14b5; // Default pink
   if (planet.userData.name === 'project2') {
     spotColor = 0xff0000; // Red for project2
+  } else if (planet.userData.name === 'project3') {
+    spotColor = 0x3366ff; // Blue for project3
+  } else if (planet.userData.name === 'project4') {
+    spotColor = 0x33ff66; // Green for project4
+  } else if (planet.userData.name === 'project5') {
+    spotColor = 0xffcc00; // Yellow for project5
   }
 
   // Create visual indicators for each spot
@@ -439,7 +573,7 @@ function createInteractiveSpots(planet) {
     sphere.position.copy(spot.position);
     
     // Adjust distance from the planet surface
-    let surfaceRadius = planet.geometry && planet.geometry.boundingSphere ? planet.geometry.boundingSphere.radius : planet.userData.orbitRadius; // Use bounding sphere radius if available, otherwise use orbit radius as approximation
+    let surfaceRadius = planet.geometry && planet.geometry.boundingSphere ? planet.geometry.boundingSphere.radius : planet.userData.orbitRadius;
     let distanceFromCenter;
 
     if (planet.userData.name === 'project5') {
@@ -448,7 +582,7 @@ function createInteractiveSpots(planet) {
       distanceFromCenter = surfaceRadius + 0.2; // Default small offset from surface
     }
     
-    sphere.position.normalize().multiplyScalar(distanceFromCenter); // Position based on calculated distance from center
+    sphere.position.normalize().multiplyScalar(distanceFromCenter);
 
     spotsGroup.add(sphere);
   });
@@ -600,7 +734,6 @@ function showPlanetContent(planetName) {
   const contactsHTML = content.contacts ? content.contacts.map(contact => {
     return `
       <button class="social-link" onclick="window.open('${contact.link}', '_blank')">
-        <img src="/api/placeholder/20/20" alt="${contact.type}" /> 
         ${contact.value}
       </button>
     `;
@@ -620,7 +753,7 @@ function showPlanetContent(planetName) {
       </div>
     ` : ''}
     
-    ${planetName !== 'project1' && planetName !== 'project3' ? `
+    ${planetName !== 'project1' && planetName !== 'project3' && planetName !== 'about' ? `
       <div class="interactive-spots-info">
         <p>Hover over the glowing orbs orbiting the planet to learn more about different aspects of this project.</p>
       </div>
