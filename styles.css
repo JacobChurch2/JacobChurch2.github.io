@@ -262,3 +262,52 @@ body, html {
     50% { opacity: 1; }
     100% { opacity: 0.7; }
   }
+  
+  #spot-content {
+    position: fixed;
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 20px;
+    border-radius: 12px;
+    max-width: 300px;
+    pointer-events: none;
+    z-index: 1000;
+    transition: opacity 0.2s ease;
+    box-shadow: 0 0 30px rgba(255, 20, 181, 0.3),
+                inset 0 0 20px rgba(255, 20, 181, 0.2);
+    border: 2px solid #ff14b5;
+    backdrop-filter: blur(10px);
+    animation: glowPulse 2s infinite;
+  }
+  
+  #spot-content h3 {
+    margin: 0 0 12px 0;
+    color: #ff14b5;
+    font-size: 1.4em;
+    text-shadow: 0 0 10px rgba(255, 20, 181, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  #spot-content p {
+    margin: 0;
+    font-size: 1em;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+  }
+  
+  @keyframes glowPulse {
+    0% { box-shadow: 0 0 30px rgba(255, 20, 181, 0.3); }
+    50% { box-shadow: 0 0 50px rgba(255, 20, 181, 0.5); }
+    100% { box-shadow: 0 0 30px rgba(255, 20, 181, 0.3); }
+  }
+  
+  .interactive-spots-info {
+    margin-top: 20px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: #ccc;
+  }
