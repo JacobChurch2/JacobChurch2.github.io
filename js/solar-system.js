@@ -14,8 +14,8 @@ function createSolarSystem() {
   const sunGeometry = new THREE.SphereGeometry(4, 32, 32);
   const sunMaterial = new THREE.MeshPhongMaterial({ 
     color: 0xffdd00,
-    emissive: 0x000000,
-    emissiveIntensity: 1,
+    emissive: 0xffdd00,
+    emissiveIntensity: 2,
     shininess: 30
   });
   const sun = new THREE.Mesh(sunGeometry, sunMaterial);
@@ -27,6 +27,153 @@ function createSolarSystem() {
     name: 'about'
   };
   
+  // Create a glowing aura around the sun
+  const auraGeometry = new THREE.SphereGeometry(4.5, 32, 32); // Slightly larger than the sun
+  const auraMaterial = new THREE.MeshBasicMaterial({
+    color: 0xffdd00, // Same color as the sun
+    transparent: true,
+    opacity: 0.6, // Increased opacity for brighter aura
+    side: THREE.BackSide // Render the back side to make the aura appear from the center
+  });
+  const aura = new THREE.Mesh(auraGeometry, auraMaterial);
+  sun.add(aura); // Add aura as a child of the sun so it moves with it
+
+  // Create a simple turtle model
+  const createTurtle = (size) => {
+    const turtleGroup = new THREE.Group();
+
+    // Shell (slightly flattened sphere)
+    const shellGeometry = new THREE.SphereGeometry(size * 0.6, 16, 16); // Further reduced base size
+    const shellMaterial = new THREE.MeshPhongMaterial({
+      color: 0x228B22, // Forest Green
+      emissive: 0x004400,
+      shininess: 10
+    });
+    const shell = new THREE.Mesh(shellGeometry, shellMaterial);
+    shell.scale.set(1.1, 0.6, 1.1); // Slightly wider and less flat shell (scale remains same)
+    turtleGroup.add(shell);
+
+    // Body (smaller cylinder, positioned inside shell)
+    const bodyGeometry = new THREE.CylinderGeometry(size * 0.4, size * 0.5, size * 0.3, 8); // Shorter body
+    const bodyMaterial = new THREE.MeshPhongMaterial({
+        color: 0x8B4513, // SaddleBrown
+        emissive: 0x442200,
+        shininess: 10
+    });
+    const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+    body.position.y = -size * 0.2; // Position slightly inside and below shell
+    turtleGroup.add(body);
+
+    // Head (slightly larger sphere, positioned forward)
+    const headGeometry = new THREE.SphereGeometry(size * 0.35, 8, 8); // Slightly larger head
+    const headMaterial = new THREE.MeshPhongMaterial({
+        color: 0x8B4513, // SaddleBrown
+        emissive: 0x442200,
+        shininess: 10
+    });
+    const head = new THREE.Mesh(headGeometry, headMaterial);
+    head.position.set(0, -size * 0.05, size * 0.6); // Position lower and further forward
+    turtleGroup.add(head);
+
+    // Legs (small boxes, adjusted positions)
+    const legGeometry = new THREE.BoxGeometry(size * 0.2, size * 0.2, size * 0.4);
+    const legMaterial = new THREE.MeshPhongMaterial({
+        color: 0x8B4513, // SaddleBrown
+        emissive: 0x442200,
+        shininess: 10
+    });
+
+    const legPositions = [
+        new THREE.Vector3(size * 0.5, -size * 0.5, size * 0.2), // Front right - adjusted position
+        new THREE.Vector3(-size * 0.5, -size * 0.5, size * 0.2), // Front left - adjusted position
+        new THREE.Vector3(size * 0.5, -size * 0.5, -size * 0.2), // Back right - adjusted position
+        new THREE.Vector3(-size * 0.5, -size * 0.5, -size * 0.2) // Back left - adjusted position
+    ];
+
+    legPositions.forEach(pos => {
+        const leg = new THREE.Mesh(legGeometry, legMaterial);
+        leg.position.copy(pos);
+        turtleGroup.add(leg);
+    });
+
+    // Tail (small cone, adjusted position and rotation)
+    const tailGeometry = new THREE.ConeGeometry(size * 0.1, size * 0.3, 8);
+    const tailMaterial = new THREE.MeshPhongMaterial({
+        color: 0x8B4513, // SaddleBrown
+        emissive: 0x442200,
+        shininess: 10
+    });
+    const tail = new THREE.Mesh(tailGeometry, tailMaterial);
+    tail.rotation.x = Math.PI / 2; // Orient backward
+    tail.position.set(0, -size * 0.2, -size * 0.6); // Position lower and further back
+    turtleGroup.add(tail);
+
+    return turtleGroup;
+  };
+
+  // Create a group for the orbiting turtles
+  const orbitingTurtlesGroup = new THREE.Group();
+  sun.add(orbitingTurtlesGroup); // Add turtle group as child of the sun
+
+  // Create and position multiple orbiting turtles
+  const turtleCount = 5; // Number of orbiting turtles
+  const baseOrbitDistance = 5; // Base distance from the sun
+  const turtleSize = 0.5; // Size of the turtles
+
+  for (let i = 0; i < turtleCount; i++) {
+    const orbitingTurtle = createTurtle(turtleSize);
+
+    // Give each turtle a unique orbit
+    const angle = (i / turtleCount) * Math.PI * 2; // Evenly spaced starting angles
+    const orbitDistance = baseOrbitDistance + (i * 0.5); // Each turtle has a different orbit radius
+    const orbitSpeed = 0.008 + (i * 0.002); // Each turtle has a different speed
+    const height = (i - 2) * 0.5; // Vary the height of each turtle's orbit plane
+
+    orbitingTurtle.position.set(
+      Math.cos(angle) * orbitDistance,
+      height, // Set initial height
+      Math.sin(angle) * orbitDistance
+    );
+    
+    // Store orbit data in each turtle's userData
+    orbitingTurtle.userData.orbitAngle = angle;
+    orbitingTurtle.userData.orbitSpeed = orbitSpeed;
+    orbitingTurtle.userData.orbitDistance = orbitDistance;
+    orbitingTurtle.userData.height = height; // Store height for animation
+
+    orbitingTurtlesGroup.add(orbitingTurtle);
+  }
+
+  // Animation function for the orbiting turtles
+  const animateOrbitingTurtles = () => {
+    orbitingTurtlesGroup.children.forEach(turtle => {
+      if (turtle.userData.orbitAngle !== undefined) {
+        turtle.userData.orbitAngle += turtle.userData.orbitSpeed;
+        
+        const x = Math.cos(turtle.userData.orbitAngle) * turtle.userData.orbitDistance;
+        const z = Math.sin(turtle.userData.orbitAngle) * turtle.userData.orbitDistance;
+        
+        // Use the stored height for this turtle
+        const y = turtle.userData.height;
+
+        turtle.position.set(x, y, z);
+        
+        // Make the turtle look in the direction of its orbit
+        const nextAngle = turtle.userData.orbitAngle + turtle.userData.orbitSpeed;
+        const nextX = Math.cos(nextAngle) * turtle.userData.orbitDistance;
+        const nextZ = Math.sin(nextAngle) * turtle.userData.orbitDistance;
+        const nextPosition = new THREE.Vector3(nextX, y, nextZ);
+        
+        turtle.lookAt(nextPosition);
+        turtle.rotation.y += Math.PI / 2;
+      }
+    });
+    requestAnimationFrame(animateOrbitingTurtles);
+  };
+
+  // Start the orbiting animation
+  animateOrbitingTurtles();
+
   console.log('Sun created with material:', sun.material);
   
   // Add a point light at the sun's position
@@ -512,7 +659,7 @@ function createSolarSystem() {
             emissiveIntensity: 1,
             transparent: true,
             opacity: 1
-          });
+        });
 
           // Calculate normal vector at explosion point
           const normal = position.clone().normalize();
@@ -785,17 +932,310 @@ function createSolarSystem() {
 
         // Store explosion system in userData for cleanup
         planet.userData.explosionParticles = explosionParticles;
-        
+
+      } else if (planetId === 'project4') {
+        // Create the base planet
+        const planetGeometry = new THREE.SphereGeometry(planetConfig.size, 32, 32);
+        const planetMaterial = new THREE.MeshPhongMaterial({
+          color: planetConfig.color,
+          emissive: planetConfig.color,
+          emissiveIntensity: 0.3,
+          shininess: 30
+        });
+        planet = new THREE.Mesh(planetGeometry, planetMaterial);
+
+        // Define strap material
+        const strapMaterial = new THREE.MeshPhongMaterial({
+          color: 0x666666,
+          emissive: 0x333333,
+          shininess: 30
+        });
+
+        // Create the main horizontal strap that wraps around the planet
+        const mainStrapGeometry = new THREE.CylinderGeometry(planetConfig.size * 1.1, planetConfig.size * 1.1, planetConfig.size * 0.2, 64);
+        const mainStrap = new THREE.Mesh(mainStrapGeometry, strapMaterial);
+        mainStrap.rotation.set(0, 0, 0); // Reset rotations
+        mainStrap.rotation.y = Math.PI / 2; // Rotate 90 degrees around Y-axis
+        mainStrap.position.y = 0; // Position it around the planet's equator
+        planet.add(mainStrap); // Add strap directly to the planet
+
+        // Create the adjustment mechanism (small box with cylinder) and attach to the main strap
+        const adjusterGeometry = new THREE.BoxGeometry(planetConfig.size * 0.2, planetConfig.size * 0.3, planetConfig.size * 0.2);
+        const adjuster = new THREE.Mesh(adjusterGeometry, strapMaterial);
+        // Position at the back of the strap, relative to the strap's local origin (which is the planet's origin)
+        // Since strap is rotated on Y, its local -X is world -X, local -Z is world -Z
+        adjuster.position.set(-planetConfig.size * 1.1, 0, 0); // Position behind the strap's outer radius in its local X (world X)
+        adjuster.rotation.z = Math.PI / 2; // Rotate adjuster to face backward along the strap
+        mainStrap.add(adjuster);
+
+        const adjusterCylinderGeometry = new THREE.CylinderGeometry(planetConfig.size * 0.05, planetConfig.size * 0.05, planetConfig.size * 0.3, 8);
+        const adjusterCylinder = new THREE.Mesh(adjusterCylinderGeometry, strapMaterial);
+        adjusterCylinder.rotation.x = Math.PI / 2; // Rotate cylinder to be horizontal relative to adjuster
+        adjusterCylinder.position.set(0, -planetConfig.size * 0.1, 0); // Adjust cylinder position relative to adjuster
+        adjuster.add(adjusterCylinder);
+
+        // Create VR headset group
+        const headsetGroup = new THREE.Group();
+
+        // Main headset body (curved box)
+        const bodyGeometry = new THREE.BoxGeometry(planetConfig.size * 1.5, planetConfig.size * 1.0, planetConfig.size * 0.5);
+        const bodyMaterial = new THREE.MeshPhongMaterial({
+          color: 0x666666,
+          emissive: 0x333333,
+          shininess: 50
+        });
+        const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+        headsetGroup.add(body);
+
+        // Create the top strap connector
+        const topConnectorGeometry = new THREE.BoxGeometry(planetConfig.size * 0.25, planetConfig.size * 0.25, planetConfig.size * 0.25);
+        const topConnector = new THREE.Mesh(topConnectorGeometry, bodyMaterial);
+        topConnector.position.set(0, planetConfig.size * 0.625, 0);
+        headsetGroup.add(topConnector);
+
+        // Left controller (box with sphere)
+        const controllerGeometry = new THREE.BoxGeometry(planetConfig.size * 0.4, planetConfig.size * 0.4, planetConfig.size * 0.4);
+        const controllerMaterial = new THREE.MeshPhongMaterial({
+          color: 0x666666,
+          emissive: 0x333333,
+          shininess: 30
+        });
+        const leftController = new THREE.Mesh(controllerGeometry, controllerMaterial);
+        leftController.position.set(-planetConfig.size * 1.5, -planetConfig.size * 0.5, 0);
+        headsetGroup.add(leftController);
+
+        // Left controller button (sphere)
+        const buttonGeometry = new THREE.SphereGeometry(planetConfig.size * 0.1, 16, 16);
+        const buttonMaterial = new THREE.MeshPhongMaterial({
+          color: 0xcc33ff,
+          emissive: 0xcc33ff,
+          emissiveIntensity: 0.5,
+          shininess: 50
+        });
+        const leftButton = new THREE.Mesh(buttonGeometry, buttonMaterial);
+        leftButton.position.set(0, planetConfig.size * 0.2, planetConfig.size * 0.2);
+        leftController.add(leftButton);
+
+        // Right controller (box with sphere)
+        const rightController = new THREE.Mesh(controllerGeometry, controllerMaterial);
+        rightController.position.set(planetConfig.size * 1.5, -planetConfig.size * 0.5, 0);
+        headsetGroup.add(rightController);
+
+        // Right controller button (sphere)
+        const rightButton = new THREE.Mesh(buttonGeometry, buttonMaterial);
+        rightButton.position.set(0, planetConfig.size * 0.2, planetConfig.size * 0.2);
+        rightController.add(rightButton);
+
+        // Add lights to make it glow
+        const headsetLight = new THREE.PointLight(0xcc33ff, 1, 5);
+        headsetLight.position.set(0, 0, 0);
+        headsetGroup.add(headsetLight);
+
+        // Add pulsing animation to the buttons
+        const animateButtons = () => {
+          const time = Date.now() * 0.001;
+          const scale = 1 + Math.sin(time * 2) * 0.2;
+          leftButton.scale.setScalar(scale);
+          rightButton.scale.setScalar(scale);
+          requestAnimationFrame(animateButtons);
+        };
+        animateButtons();
+
+        // Position the headset on the front of the planet, visually connecting to the strap
+        headsetGroup.position.z = planetConfig.size * 0.95; // Position in front of the planet's surface
+        headsetGroup.position.y = 0; // Vertically centered with the strap
+        headsetGroup.rotation.x = 0; 
+        headsetGroup.rotation.y = 0; 
+        headsetGroup.rotation.z = 0; 
+
+        // Add the headset group as a child of the planet
+        planet.add(headsetGroup);
+
+        // Store necessary data in userData
+        planet.userData = {
+          name: 'project4',
+          isInteractive: true,
+          orbitRadius: orbitRadius,
+          orbitSpeed: 0.005 - (index * 0.0005),
+          orbitAngle: (index / Object.keys(planetTextures).length) * Math.PI * 2,
+          headsetGroup: headsetGroup
+        };
+
       } else {
-        // Default material for other planets
-        planetMaterial = new THREE.MeshPhongMaterial({ 
+        // --- Project 5: Space Golf Planet ---
+
+        // Create the base planet (invisible) that will handle interactions
+        const planetGeometry = new THREE.SphereGeometry(planetConfig.size, 32, 32);
+        const planetMaterial = new THREE.MeshPhongMaterial({ 
           color: planetConfig.color,
           emissive: 0x000000,
           emissiveIntensity: 1,
-          shininess: 30
+          shininess: 30,
+          transparent: true,
+          opacity: 0 // Make the base sphere invisible
         });
-        
         planet = new THREE.Mesh(planetGeometry, planetMaterial);
+        
+        // Create a group for the visual Space Golf planet and its features
+        const golfPlanetGroup = new THREE.Group();
+
+        // Create the base golf ball sphere
+        const golfBallGeometry = new THREE.SphereGeometry(planetConfig.size, 64, 64); // Higher segments for smoother surface
+        const golfBallMaterial = new THREE.MeshPhongMaterial({
+          color: 0xffffff, // White golf ball
+          emissive: 0x111111,
+          emissiveIntensity: 0.5,
+          shininess: 80
+        });
+        const golfBall = new THREE.Mesh(golfBallGeometry, golfBallMaterial);
+        golfPlanetGroup.add(golfBall);
+
+        // Add dimples (simplified by adding small indentations - visually)
+        const dimpleGeometry = new THREE.SphereGeometry(planetConfig.size * 0.05, 8, 8);
+        const dimpleMaterial = new THREE.MeshPhongMaterial({
+          color: 0xcccccc, // Slightly darker for visual indentation
+          emissive: 0x080808,
+          emissiveIntensity: 0.5,
+          shininess: 20
+        });
+
+        // Simple distribution of dimples
+        const dimpleCount = 150;
+        for (let i = 0; i < dimpleCount; i++) {
+            const dimple = new THREE.Mesh(dimpleGeometry, dimpleMaterial);
+            // Position dimples on the surface of the sphere
+            const phi = Math.acos(-1 + (2 * i) / dimpleCount);
+            const theta = Math.sqrt(dimpleCount * Math.PI) * phi;
+            
+            dimple.position.set(
+                planetConfig.size * Math.sin(phi) * Math.cos(theta),
+                planetConfig.size * Math.sin(phi) * Math.sin(theta),
+                planetConfig.size * Math.cos(phi)
+            );
+            
+            // Scale down slightly to look more like an indentation
+            dimple.scale.setScalar(0.8);
+
+            golfPlanetGroup.add(dimple);
+        }
+
+        // Add a golf hole and flag
+        // Flagpole (cylinder)
+        const flagpoleGeometry = new THREE.CylinderGeometry(planetConfig.size * 0.03, planetConfig.size * 0.03, planetConfig.size * 0.8, 8);
+        const flagpoleMaterial = new THREE.MeshPhongMaterial({
+            color: 0x888888,
+            emissive: 0x444444,
+            shininess: 20
+        });
+        const flagpole = new THREE.Mesh(flagpoleGeometry, flagpoleMaterial);
+
+        // Position flagpole on the surface
+        const flagpolePosition = new THREE.Vector3(planetConfig.size * 0.8, planetConfig.size * 0.8, 0); // Example position
+        flagpole.position.copy(flagpolePosition);
+        
+        // Orient flagpole to stand upright on the surface
+        // Calculate the normal vector at this position on the sphere
+        const surfaceNormal = flagpolePosition.clone().normalize();
+        // Create a quaternion to align the flagpole's default up (Y) with the normal
+        const quaternion = new THREE.Quaternion();
+        // Use a helper vector to represent the flagpole's default up (Y)
+        const upVector = new THREE.Vector3(0, 1, 0);
+        quaternion.setFromUnitVectors(upVector, surfaceNormal);
+        flagpole.rotation.setFromQuaternion(quaternion);
+
+        // Adjust rotation to have the flagpole pointing outwards correctly
+        // The default cylinder points along Y. We want it to point away from the center (along normal).
+        // Since normal is aligned with flagpole's Y, the flagpole is already standing upright.
+        // We might need a small adjustment to point it slightly upwards relative to the horizon if desired.
+        // For now, let's just ensure the base is at the surface.
+        flagpole.position.add(surfaceNormal.clone().multiplyScalar(flagpoleGeometry.parameters.height / 2)); // Move up so base is on surface
+
+        golfPlanetGroup.add(flagpole);
+
+        // Flag (box or plane)
+        const flagGeometry = new THREE.BoxGeometry(planetConfig.size * 0.4, planetConfig.size * 0.3, planetConfig.size * 0.05);
+        const flagMaterial = new THREE.MeshPhongMaterial({
+            color: 0xff0000, // Red flag
+            emissive: 0x880000,
+            shininess: 50
+        });
+        const flag = new THREE.Mesh(flagGeometry, flagMaterial);
+        // Position flag at the top of the flagpole
+        flag.position.set(0, planetConfig.size * 0.4, 0); // Relative to flagpole top
+        flagpole.add(flag);
+        
+        // Golf hole (small cylinder indentation)
+        const holeGeometry = new THREE.CylinderGeometry(planetConfig.size * 0.1, planetConfig.size * 0.1, planetConfig.size * 0.05, 16);
+        const holeMaterial = new THREE.MeshPhongMaterial({
+            color: 0x000000, // Black hole
+            emissive: 0x000000,
+            shininess: 10
+        });
+        const golfHole = new THREE.Mesh(holeGeometry, holeMaterial);
+        // Position golf hole on the surface near the flagpole
+        golfHole.position.set(planetConfig.size * 0.7, planetConfig.size * 0.7, 0); // Example position near flagpole
+        golfHole.lookAt(0, 0, 0); // Orient hole into the surface
+         golfHole.rotation.x += Math.PI / 2; // Adjust rotation to face inward
+        golfPlanetGroup.add(golfHole);
+
+        // Create a small orbiting golf ball
+        const orbitingBallGeometry = new THREE.SphereGeometry(planetConfig.size * 0.1, 32, 32);
+        const orbitingBallMaterial = new THREE.MeshPhongMaterial({
+            color: 0xffffff, // White
+            emissive: 0x222222,
+            shininess: 50
+        });
+        const orbitingBall = new THREE.Mesh(orbitingBallGeometry, orbitingBallMaterial);
+        
+        // Set initial position for orbiting ball
+        const orbitDistance = planetConfig.size * 1.5; // Orbit radius
+        orbitingBall.position.set(orbitDistance, 0, 0);
+        
+        golfPlanetGroup.add(orbitingBall);
+
+        // Store orbiting ball and orbit data for animation
+        golfPlanetGroup.userData.orbitingBall = orbitingBall;
+        golfPlanetGroup.userData.orbitSpeed = 0.01; // Speed of orbit
+        golfPlanetGroup.userData.orbitAngle = 0; // Initial angle
+
+        // Animation function for the orbiting ball
+        const animateOrbitingBall = () => {
+          // Check if the orbitingBall object exists before animating
+          if (golfPlanetGroup.userData.orbitingBall) {
+            golfPlanetGroup.userData.orbitAngle += golfPlanetGroup.userData.orbitSpeed;
+            const x = Math.cos(golfPlanetGroup.userData.orbitAngle) * orbitDistance;
+            const z = Math.sin(golfPlanetGroup.userData.orbitAngle) * orbitDistance;
+            golfPlanetGroup.userData.orbitingBall.position.set(x, 0, z);
+          }
+          // Request next frame regardless of whether ball exists, animation stops when group is removed
+          requestAnimationFrame(animateOrbitingBall);
+        };
+
+        // Start the orbiting animation
+        animateOrbitingBall();
+
+        // Add the visual golf planet group as a child of the invisible base planet
+        planet.add(golfPlanetGroup);
+
+        // Store necessary data in userData for interaction and animation
+        planet.userData = {
+          name: 'project5',
+          isInteractive: true,
+          orbitRadius: orbitRadius,
+          orbitSpeed: 0.005 - (index * 0.0005),
+          orbitAngle: (index / Object.keys(planetTextures).length) * Math.PI * 2,
+          golfPlanetGroup: golfPlanetGroup // Store reference to the group
+        };
+
+        // Default material (kept for other potential future planets)
+        // planetMaterial = new THREE.MeshPhongMaterial({ 
+        //   color: planetConfig.color,
+        //   emissive: 0x000000,
+        //   emissiveIntensity: 1,
+        //   shininess: 30
+        // });
+        
+        // planet = new THREE.Mesh(planetGeometry, planetMaterial);
       }
     }
     

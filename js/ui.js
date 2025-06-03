@@ -118,9 +118,16 @@ function setupPlanetInteractions() {
       currentHoveredObject = hoveredObject;
       
       try {
-        // Enhanced glow effect with smoother transition
-        hoveredObject.material.emissive.setHex(0x444444);
-        hoveredObject.material.emissiveIntensity = 2;
+        // Apply hover effects
+        if (hoveredObject === window.TheSun) {
+          // Enhance sun's glow on hover
+          hoveredObject.material.emissiveIntensity = 4; // Increase intensity further
+          // Could also slightly change the color: hoveredObject.material.emissive.setHex(0xffff00);
+        } else {
+          // Enhanced glow effect with smoother transition for other objects
+          hoveredObject.material.emissive.setHex(0x444444);
+          hoveredObject.material.emissiveIntensity = 2;
+        }
         
         // Smoother scale increase while preserving original scale
         const originalScale = hoveredObject.scale.clone();
@@ -217,11 +224,12 @@ function getAllInteractiveObjects() {
 
 function resetHoverEffects() {
   try {
-    // Reset sun if it exists and has material
+    // Reset sun if it exists and has material, but only reset scale
     if (window.TheSun && window.TheSun.material && window.TheSun.material.emissive) {
-      window.TheSun.material.emissive.setHex(0x000000);
-      window.TheSun.material.emissiveIntensity = 1;
-      window.TheSun.scale.set(1, 1, 1);
+      // Do NOT reset emissive properties here to keep the sun bright
+      // window.TheSun.material.emissive.setHex(0x000000);
+      // window.TheSun.material.emissiveIntensity = 1;
+      window.TheSun.scale.set(1, 1, 1); // Still reset scale
     }
     
     // Reset planets if they exist
@@ -419,6 +427,21 @@ function createInteractiveSpots(planet) {
     light.position.copy(sphere.position);
     sphere.add(light);
     
+    // Position the spot initially based on defined position
+    sphere.position.copy(spot.position);
+    
+    // Adjust distance from the planet surface
+    let surfaceRadius = planet.geometry && planet.geometry.boundingSphere ? planet.geometry.boundingSphere.radius : planet.userData.orbitRadius; // Use bounding sphere radius if available, otherwise use orbit radius as approximation
+    let distanceFromCenter;
+
+    if (planet.userData.name === 'project5') {
+      distanceFromCenter = surfaceRadius + 5; // 5 units away from the surface for Project 5
+    } else {
+      distanceFromCenter = surfaceRadius + 0.2; // Default small offset from surface
+    }
+    
+    sphere.position.normalize().multiplyScalar(distanceFromCenter); // Position based on calculated distance from center
+
     spotsGroup.add(sphere);
   });
   
