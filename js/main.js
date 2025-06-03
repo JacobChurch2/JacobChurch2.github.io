@@ -8,6 +8,15 @@ window.selectedPlanet = null;
 window.TheSun = null;
 window.planets = [];
 
+// Add this at the beginning of your main.js file
+document.addEventListener('DOMContentLoaded', () => {
+  // Make profile image visible immediately
+  const profileImage = document.getElementById('profile-image-container');
+  if (profileImage) {
+    profileImage.classList.add('visible');
+  }
+});
+
 // Wait for page to load, then initialize
 window.addEventListener('load', () => {
   console.log('Page loaded, waiting to initialize scene...');

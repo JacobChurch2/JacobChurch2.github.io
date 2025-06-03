@@ -480,12 +480,12 @@ function createSolarSystem() {
             {
               position: new THREE.Vector3(-1.0, 0.3, -0.7),
               title: "Technical Details",
-              description: "Built in Unity with C#, featuring custom shader effects, advanced particle systems, and optimized networking for smooth multiplayer gameplay."
+              description: "Built in Unreal, featuring custom made assets, advanced combat system, advanced AIs, and optimized networking for smooth multiplayer gameplay."
             },
             {
               position: new THREE.Vector3(0.5, -0.8, 0.3),
               title: "My Role",
-              description: "Lead gameplay programmer responsible for weapon systems, player mechanics, and core gameplay features. Implemented advanced particle effects and shader systems."
+              description: "Lead Developer for the AI. Implemented the AI system, including pathfinding, decision-making, and combat strategies."
             }
           ];
 
@@ -1322,17 +1322,17 @@ function getPlanetContent(planetName) {
     const planetInfo = [
       {
         title: "Technical Details",
-        description: "This portfolio is built using Three.js for 3D graphics, modern JavaScript (ES6+), and HTML5/CSS3. It features responsive design, smooth animations, and interactive 3D elements. The project demonstrates expertise in WebGL, 3D mathematics, and modern web development practices.",
+        description: "This portfolio is built using Three.js for 3D graphics, modern JavaScript (ES6+), and HTML5/CSS3. It features responsive design, smooth animations, and interactive 3D elements. The project was designed by me and created using AI. The base of it was built using Claude AI and the rest was built using Cursor AI, with a bit of manual tweaking.",
         contacts: []
       },
       {
         title: "My Role",
-        description: "As the sole developer, I designed and implemented the entire interactive solar system, including the 3D models, animations, and user interactions. I created the custom shaders for planet effects, implemented the navigation system, and designed the user interface.",
+        description: "As the sole developer, I designed and implemented the entire interactive solar system, including the 3D models, animations, and user interactions. I then prompted the AIs to actually create everything going through many different iterations.",
         contacts: []
       },
       {
         title: "Key Features",
-        description: "• Interactive 3D solar system with realistic planet orbits\n• Smooth camera transitions and animations\n• Dynamic lighting and glow effects\n• Responsive design that works across devices\n• Interactive information display system\n• Custom shaders for visual effects",
+        description: "• Interactive 3D solar system with realistic planet orbits\n• Smooth camera transitions and animations\n• Dynamic lighting and glow effects\n• Responsive design that works across devices\n• Interactive information display system\n• Custom shaders for visual effects\n• Custom Designed 3D Models",
         contacts: []
       }
     ];
@@ -1427,17 +1427,17 @@ function createMiniSolarSystem(position, size) {
   const planetInfo = [
     {
       title: "Technical Details",
-      description: "This portfolio is built using Three.js for 3D graphics, modern JavaScript (ES6+), and HTML5/CSS3. It features responsive design, smooth animations, and interactive 3D elements. The project demonstrates expertise in WebGL, 3D mathematics, and modern web development practices.",
+      description: "This portfolio is built using Three.js for 3D graphics, modern JavaScript (ES6+), and HTML5/CSS3. It features responsive design, smooth animations, and interactive 3D elements. The project was designed by me and created using AI. The base of it was built using Claude AI and the rest was built using Cursor AI, with a bit of manual tweaking.",
       color: 0xff3366
     },
     {
       title: "My Role",
-      description: "As the sole developer, I designed and implemented the entire interactive solar system, including the 3D models, animations, and user interactions. I created the custom shaders for planet effects, implemented the navigation system, and designed the user interface.",
+      description: "As the sole developer, I designed and implemented the entire interactive solar system, including the 3D models, animations, and user interactions. I then prompted the AIs to actually create everything going through many different iterations.",
       color: 0x33ff66
     },
     {
       title: "Key Features",
-      description: "• Interactive 3D solar system with realistic planet orbits\n• Smooth camera transitions and animations\n• Dynamic lighting and glow effects\n• Responsive design that works across devices\n• Interactive information display system\n• Custom shaders for visual effects",
+      description: "• Interactive 3D solar system with realistic planet orbits\n• Smooth camera transitions and animations\n• Dynamic lighting and glow effects\n• Responsive design that works across devices\n• Interactive information display system\n• Custom shaders for visual effects\n• Custom Designed 3D Models",
       color: 0x6633ff
     }
   ];

@@ -339,12 +339,20 @@ function createBackButton() {
 
 function setupEnterButton() {
   const enterBtn = document.getElementById('enter-btn');
+  const mainTitle = document.getElementById('main-title');
+  const subtitle = document.getElementById('subtitle');
+  const profileImage = document.getElementById('profile-image-container');
+
   if (enterBtn) {
     enterBtn.addEventListener('click', () => {
+      // Add visible class to all elements at once
+      if (profileImage) profileImage.classList.add('visible');
+      if (mainTitle) mainTitle.classList.add('visible');
+      if (subtitle) subtitle.classList.add('visible');
+      
+      // Transition to solar system view
       transitionToSolarSystem();
     });
-  } else {
-    console.error('Enter button not found for click event!');
   }
 }
 
@@ -614,7 +622,7 @@ function showPlanetContent(planetName) {
     
     ${planetName !== 'project1' && planetName !== 'project3' ? `
       <div class="interactive-spots-info">
-        <p>Hover over the glowing spots on the planet to learn more about different aspects of this project.</p>
+        <p>Hover over the glowing orbs orbiting the planet to learn more about different aspects of this project.</p>
       </div>
     ` : ''}
   `;
@@ -750,118 +758,34 @@ function hideHoverContent() {
 function transitionToSolarSystem() {
   console.log('Transitioning to solar system view');
   
-  // Hide intro content
+  // Hide all intro content together
   const content = document.getElementById('content');
   if (content) {
     content.style.opacity = '0';
     content.style.transition = 'opacity 1s ease';
+    
+    // Wait for fade out to complete before hiding content and showing solar system
     setTimeout(() => {
       content.style.display = 'none';
-    }, 1000);
-  }
+      // Show solar system after content is hidden
+      showSolarSystem();
+      
+      // Update current view
+      window.currentView = 'solar';
+      console.log('View updated to:', window.currentView);
 
-  // Show solar system
-  showSolarSystem();
-  
-  // Update current view
-  window.currentView = 'solar';
-  console.log('View updated to:', window.currentView);
-
-  // Enable orbit controls
-  if (window.orbitControls) {
-    window.orbitControls.enabled = true;
-  }
-
-  // Find the pink slime planet (project2) and start its moving lights animation
-  const pinkSlimePlanet = window.planets.find(planet => planet.userData.name === 'project2');
-  if (pinkSlimePlanet && pinkSlimePlanet.userData.movingLights) {
-    const movingLights = pinkSlimePlanet.userData.movingLights;
-
-    const animateMovingLights = () => {
-      if (window.currentView === 'solar' || window.currentView === 'planet') {
-        // Use a frame counter to apply randomness periodically
-        // if (!animateMovingLights.frameCounter) {
-        //     animateMovingLights.frameCounter = 0;
-        // }
-        // animateMovingLights.frameCounter++;
-
-        // const applyRandomThisFrame = animateMovingLights.frameCounter % 120 === 0; // Apply random movement every 120 frames (adjust as needed for frequency)
-        // const randomStrength = 0.5; // Adjust this value for the magnitude of the random jump
-
-        movingLights.forEach(light => {
-          // Update orbital position around the planet's local origin
-          light.userData.angle += light.userData.speed; // Increase the angle based on speed
-          
-          // Calculate position with non-straight orbit (adding vertical oscillation)
-          const distance = light.userData.distance;
-          const angle = light.userData.angle;
-          const orbitHeight = distance * 0.3; // Adjust for vertical range of orbit
-          const verticalSpeed = light.userData.speed * 0.5; // Adjust vertical movement speed
-
-          const baseX = Math.cos(angle) * distance;
-          const baseY = Math.sin(angle * 2) * orbitHeight; // Vertical oscillation based on angle
-          const baseZ = Math.sin(angle) * distance;
-          
-          // Apply the base orbital position
-          light.position.set(baseX, baseY, baseZ);
-
-          // // Apply random jump periodically (removed for now)
-          // if (applyRandomThisFrame) {
-          //    light.position.x += (Math.random() - 0.5) * randomStrength;
-          //    light.position.y += (Math.random() - 0.5) * randomStrength;
-          //    light.position.z += (Math.random() - 0.5) * randomStrength;
-          // }
-
-          // Handle blinking
-          if (light.userData.blinkState === 'on') {
-              light.userData.blinkTimer += 1/60; // Assuming 60 frames per second
-              if (light.userData.blinkTimer >= light.userData.blinkDurationOn) {
-                  light.userData.blinkState = 'fadeOut';
-                  light.userData.blinkTimer = 0;
-                  // Generate new random duration for next on cycle
-                  light.userData.blinkDurationOn = light.userData.minDurationOn + Math.random() * (light.userData.maxDurationOn - light.userData.minDurationOn);
-              }
-          } else if (light.userData.blinkState === 'fadeOut') {
-              light.userData.blinkTimer += 1/60;
-              const fadeProgress = light.userData.blinkTimer / 0.5; // 0.5 seconds fade out
-              light.intensity = light.userData.originalIntensity * (1 - Math.min(fadeProgress, 1));
-              
-              if (fadeProgress >= 1) {
-                  light.userData.blinkState = 'off';
-                  light.userData.blinkTimer = 0;
-                  light.intensity = 0;
-                  // Generate new random duration for off cycle
-                  light.userData.blinkDurationOff = light.userData.minDurationOff + Math.random() * (light.userData.maxDurationOff - light.userData.minDurationOff);
-              }
-          } else if (light.userData.blinkState === 'off') {
-              light.userData.blinkTimer += 1/60;
-              if (light.userData.blinkTimer >= light.userData.blinkDurationOff) {
-                  light.userData.blinkState = 'fadeIn';
-                  light.userData.blinkTimer = 0;
-              }
-          } else if (light.userData.blinkState === 'fadeIn') {
-              light.userData.blinkTimer += 1/60;
-              const fadeProgress = light.userData.blinkTimer / 0.5; // 0.5 seconds fade in
-              light.intensity = light.userData.originalIntensity * Math.min(fadeProgress, 1);
-              
-              if (fadeProgress >= 1) {
-                  light.userData.blinkState = 'on';
-                  light.userData.blinkTimer = 0;
-                  light.intensity = light.userData.originalIntensity;
-              }
-          }
-
-         });
-
-        // Reset counter if it gets too large (removed for now)
-        // if (animateMovingLights.frameCounter > 10000) {
-        //     animateMovingLights.frameCounter = 0;
-        // }
-
-        requestAnimationFrame(animateMovingLights);
+      // Enable orbit controls
+      if (window.orbitControls) {
+        window.orbitControls.enabled = true;
       }
-    };
-    animateMovingLights(); // Start the animation loop
+
+      // Find the pink slime planet (project2) and start its moving lights animation
+      const pinkSlimePlanet = window.planets.find(planet => planet.userData.name === 'project2');
+      if (pinkSlimePlanet && pinkSlimePlanet.userData.movingLights) {
+        const movingLights = pinkSlimePlanet.userData.movingLights;
+        animateMovingLights();
+      }
+    }, 1000);
   }
 }
 
